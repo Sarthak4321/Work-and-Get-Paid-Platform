@@ -13,6 +13,7 @@ import { firebaseLogin } from "../utils/authEmailPassword";
 
 export default function Login() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -21,25 +22,26 @@ export default function Login() {
     initializeTestData();
   }, []);
 
-  // ============================================================
-  // CREATE DEMO ADMIN
-  // ============================================================
+  // ================================================
+  // CREATE ADMIN ACCOUNT IN LOCAL STORAGE
+  // ================================================
   const createDemoAdmin = () => {
-    const users = storage.getUsers();
     const adminEmail = "sarthakroy902@gmail.com";
+    const adminPassword = "admin123";
 
+    const users = storage.getUsers();
     const existingAdmin = users.find((u) => u.email === adminEmail);
 
     if (!existingAdmin) {
       const adminUser: User = {
         id: "admin-1",
         email: adminEmail,
-        password: "admin123",
+        password: adminPassword,
         fullName: "Admin User",
-        phone: "+1234567890",
+        phone: "",
         skills: [],
-        experience: "expert",
-        timezone: "UTC",
+        experience: "",
+        timezone: "",
         preferredWeeklyPayout: 0,
 
         role: "admin",
@@ -52,47 +54,48 @@ export default function Login() {
       };
 
       storage.setUsers([...users, adminUser]);
-      alert(`Admin Created\nEmail: ${adminEmail}\nPassword: admin123`);
+      alert(`Admin created!\nEmail: ${adminEmail}\nPassword: ${adminPassword}`);
     } else {
-      alert(`Admin already exists:\n${adminEmail}`);
+      alert(`Admin already exists!\nEmail: ${adminEmail}`);
     }
   };
 
-  // ============================================================
-  // EMAIL + PASSWORD LOGIN
-  // ============================================================
+  // ================================================
+  // LOGIN HANDLER
+  // ================================================
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     const users = storage.getUsers();
 
-    // 1. CHECK FOR LOCAL ADMIN LOGIN
+    // 1️⃣ ADMIN LOGIN (local storage only)
     const admin = users.find(
-      (u) => u.role === "admin" && u.email === email && u.password === password
+      (u) =>
+        u.email === email &&
+        u.password === password &&
+        u.role === "admin"
     );
 
     if (admin) {
       storage.setCurrentUser(admin);
-      router.push("/admin"); // FIXED
+      router.push("/admin"); // FIXED redirect
       return;
     }
 
-    // 2. NORMAL WORKER LOGIN (Firebase)
+    // 2️⃣ NORMAL USERS → Firebase login
     try {
       const result = await firebaseLogin(email, password);
 
-      // If Firebase user is NOT verified → block login
       if (!result.user.emailVerified) {
         setError("Please verify your email before logging in.");
         return;
       }
 
-      // Create a complete user object
       const loggedInUser: User = {
         id: result.user.uid,
         email: result.user.email || "",
-        password: password,
+        password,
         fullName: result.user.displayName || "",
         phone: "",
         skills: [],
@@ -117,9 +120,9 @@ export default function Login() {
     }
   };
 
-  // ============================================================
-  // GOOGLE LOGIN
-  // ============================================================
+  // ================================================
+  // GOOGLE SIGN-IN
+  // ================================================
   const handleGoogleLogin = async () => {
     try {
       const result = await googleAuth();
@@ -130,7 +133,7 @@ export default function Login() {
 
       if (existing) {
         storage.setCurrentUser(existing);
-        router.push(existing.role === "admin" ? "/admin" : "/dashboard");
+        router.push("/dashboard");
         return;
       }
 
@@ -144,28 +147,26 @@ export default function Login() {
         experience: "",
         timezone: "",
         preferredWeeklyPayout: 0,
-
         role: "worker",
         accountStatus: "active",
         knowledgeScore: 0,
         demoTaskCompleted: false,
-
         createdAt: new Date().toISOString(),
         balance: 0,
       };
 
       storage.setUsers([...users, newUser]);
       storage.setCurrentUser(newUser);
+
       router.push("/dashboard");
     } catch (err) {
-      console.error(err);
       alert("Google login failed");
     }
   };
 
-  // ============================================================
-  // GITHUB LOGIN
-  // ============================================================
+  // ================================================
+  // GITHUB SIGN-IN
+  // ================================================
   const handleGithubLogin = async () => {
     try {
       const result = await githubAuth();
@@ -176,7 +177,7 @@ export default function Login() {
 
       if (existing) {
         storage.setCurrentUser(existing);
-        router.push(existing.role === "admin" ? "/admin" : "/dashboard");
+        router.push("/dashboard");
         return;
       }
 
@@ -190,28 +191,26 @@ export default function Login() {
         experience: "",
         timezone: "",
         preferredWeeklyPayout: 0,
-
         role: "worker",
         accountStatus: "active",
         knowledgeScore: 0,
         demoTaskCompleted: false,
-
         createdAt: new Date().toISOString(),
         balance: 0,
       };
 
       storage.setUsers([...users, newUser]);
       storage.setCurrentUser(newUser);
+
       router.push("/dashboard");
     } catch (err) {
-      console.error(err);
       alert("GitHub login failed");
     }
   };
 
-  // ============================================================
+  // ================================================
   // UI
-  // ============================================================
+  // ================================================
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center py-12 px-4">
       <Head>
@@ -225,12 +224,9 @@ export default function Login() {
               Cehpoint
             </span>
           </Link>
-          <h1 className="text-4xl font-black mt-6 text-gray-900">
-            Welcome Back
-          </h1>
-          <p className="text-gray-600 mt-3 text-lg">
-            Login to continue your journey
-          </p>
+
+          <h1 className="text-4xl font-black mt-6 text-gray-900">Welcome Back</h1>
+          <p className="text-gray-600 mt-3 text-lg">Login to continue</p>
         </div>
 
         <div className="glass-card rounded-3xl premium-shadow p-10">
@@ -256,11 +252,7 @@ export default function Login() {
                 onClick={handleGithubLogin}
                 className="w-full flex items-center justify-center gap-2 bg-black text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition"
               >
-                <img
-                  src="/github.png"
-                  alt="github"
-                  className="w-5 h-5 invert"
-                />
+                <img src="/github.png" alt="github" className="w-5 h-5 invert" />
                 <span className="font-medium">Sign in with GitHub</span>
               </button>
             </div>
@@ -280,7 +272,6 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-5 py-4 premium-input rounded-xl text-base font-medium"
-                placeholder="you@email.com"
                 required
               />
             </div>
@@ -294,7 +285,6 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-5 py-4 premium-input rounded-xl text-base font-medium"
-                placeholder="••••••••"
                 required
               />
             </div>
@@ -306,7 +296,7 @@ export default function Login() {
 
           <div className="mt-8 text-center">
             <p className="text-base text-gray-600">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/signup"
                 className="text-indigo-600 font-bold hover:text-indigo-700 hover:underline transition-all"
@@ -317,20 +307,19 @@ export default function Login() {
           </div>
 
           <div className="mt-8 pt-8 border-t-2 border-gray-100">
-            <div className="space-y-3">
-              <button
-                onClick={createDemoAdmin}
-                className="w-full text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
-              >
-                Create Demo Admin Account
-              </button>
-              <button
-                onClick={resetToTestData}
-                className="w-full px-5 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white border-none rounded-xl text-sm font-bold hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-lg"
-              >
-                🚀 Load Test Accounts & Data
-              </button>
-            </div>
+            <button
+              onClick={createDemoAdmin}
+              className="w-full text-sm text-gray-600 hover:text-gray-900 font-medium transition"
+            >
+              Create Demo Admin Account
+            </button>
+
+            <button
+              onClick={resetToTestData}
+              className="w-full mt-3 px-5 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl text-sm font-bold hover:shadow-xl hover:scale-105 transition-all shadow-lg"
+            >
+              🚀 Load Test Accounts & Data
+            </button>
           </div>
         </div>
       </div>
