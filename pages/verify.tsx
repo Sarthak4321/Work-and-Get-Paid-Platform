@@ -2,30 +2,32 @@ import { useEffect } from "react";
 import { auth } from "../utils/firebase";
 import { signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 
-export default function SendVerify() {
-
+export default function Verify() {
   useEffect(() => {
     const run = async () => {
       try {
-        // ENTER YOUR EMAIL + PASSWORD HERE
         const email = "sarthakroy902@gmail.com";
         const password = "admin123";
 
-        // Login temporarily
+        console.log("Logging in...");
         const result = await signInWithEmailAndPassword(auth, email, password);
 
-        // Send verification email
+        console.log("Sending verification email...");
         await sendEmailVerification(result.user);
 
-        alert("Verification email sent!");
-      } catch (err) {
+        alert("Verification email sent! Check your Gmail.");
+      } catch (err: any) {
         console.error(err);
-        alert("Error sending verification email");
+        alert("Error: " + err.message);
       }
     };
 
     run();
   }, []);
 
-  return <h1>Sending verification email...</h1>;
+  return (
+    <h1 style={{ padding: 40 }}>
+      Sending verification email... check console for logs
+    </h1>
+  );
 }
