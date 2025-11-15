@@ -166,12 +166,12 @@ export default function Login() {
   // =============================================================
   const createDemoAdmin = () => {
     const users = storage.getUsers();
-    const existingAdmin = users.find(u => u.email === 'sampadkabiraj13@gmail.com');
+    const existingAdmin = users.find(u => u.email === 'sarthakroy902@gmail.com');
 
     if (!existingAdmin) {
       const adminUser: User = {
         id: 'admin-1',
-        email: 'sampadkabiraj13@gmail.com',
+        email: 'sarthakroy902@gmail.com',
         password: 'admin123',
         fullName: 'Admin User',
         phone: '+1234567890',
@@ -188,7 +188,7 @@ export default function Login() {
       };
 
       storage.setUsers([...users, adminUser]);
-      alert('Demo admin created!\nEmail: sampadkabiraj13@gmail.com\nPassword: admin123');
+      alert('Demo admin created!\nEmail: sarthakroy902@gmail.com\nPassword: admin123');
     } else {
       alert('Admin already exists!\nEmail: admin@cehpoint.com\nPassword: admin123');
     }
