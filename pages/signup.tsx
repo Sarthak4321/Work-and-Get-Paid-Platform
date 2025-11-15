@@ -482,54 +482,57 @@ export default function Signup() {
 
   // -----------------------------------------------------
   // GITHUB SIGNUP
- const handleGithubSignup = async () => {
-  try {
-    const result = await githubAuth();
-    const user = result.user;
+  const handleGithubSignup = async () => {
+    try {
+      const result = await githubAuth();
+      const user = result.user;
 
-    const githubName =
-      user.displayName ||
-      user.reloadUserInfo?.screenName || // GitHub username
-      user.email?.split("@")[0] ||       // fallback username
-      "New User";
+      // FIX: Safe GitHub username extraction
+      const githubRawInfo = (user as any)?.reloadUserInfo;
 
-    const users = storage.getUsers();
-    const existing = users.find(u => u.email === user.email);
+      const githubName =
+        user.displayName ||
+        githubRawInfo?.screenName ||   // GitHub username
+        user.email?.split("@")[0] ||   // fallback
+        "New User";
 
-    if (existing) {
-      storage.setCurrentUser(existing);
-      return router.push("/dashboard");
+      const users = storage.getUsers();
+      const existing = users.find(u => u.email === user.email);
+
+      if (existing) {
+        storage.setCurrentUser(existing);
+        return router.push("/dashboard");
+      }
+
+      const newUser = {
+        id: user.uid,
+        email: user.email || "",
+        fullName: githubName,
+        password: "",
+        role: "worker",
+        accountStatus: "active",
+        createdAt: new Date().toISOString(),
+
+        // dashboard-safe fields
+        skills: [],
+        experience: "",
+        phone: "",
+        timezone: "",
+        preferredWeeklyPayout: 0,
+        balance: 0,
+        knowledgeScore: 0,
+        demoTaskCompleted: false,
+      };
+
+      storage.setUsers([...users, newUser]);
+      storage.setCurrentUser(newUser);
+      router.push("/dashboard");
+
+    } catch (err) {
+      console.error(err);
+      alert("GitHub login failed");
     }
-
-    const newUser = {
-      id: user.uid,
-      email: user.email || "",
-      fullName: githubName,
-      password: "",
-      role: "worker",
-      accountStatus: "active",
-      createdAt: new Date().toISOString(),
-
-      // required for dashboard
-      skills: [],
-      experience: "",
-      phone: "",
-      timezone: "",
-      preferredWeeklyPayout: 0,
-      balance: 0,
-      knowledgeScore: 0,
-      demoTaskCompleted: false,
-    };
-
-    storage.setUsers([...users, newUser]);
-    storage.setCurrentUser(newUser);
-    router.push("/dashboard");
-
-  } catch (err) {
-    console.error(err);
-    alert("GitHub login failed");
-  }
-};
+  };
 
 
   // email
