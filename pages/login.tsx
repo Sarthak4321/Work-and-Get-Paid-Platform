@@ -166,12 +166,12 @@ export default function Login() {
   // =============================================================
   const createDemoAdmin = () => {
     const users = storage.getUsers();
-    const existingAdmin = users.find(u => u.email === 'jitbanerjeesujan@gmail.com');
+    const existingAdmin = users.find(u => u.email === 'sampadkabiraj13@gmail.com');
 
     if (!existingAdmin) {
       const adminUser: User = {
         id: 'admin-1',
-        email: 'admin@cehpoint.com',
+        email: 'sampadkabiraj13@gmail.com',
         password: 'admin123',
         fullName: 'Admin User',
         phone: '+1234567890',
