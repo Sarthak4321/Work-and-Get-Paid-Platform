@@ -155,7 +155,7 @@ import {
   listSubmissions as fsListSubmissions,
 } from "./firestore";
 
-import type { User, Task, DailySubmission } from "./types";
+import type { User, Task, export DailySubmission } from "./types";
 
 /**
  * Firestore-backed storage module
