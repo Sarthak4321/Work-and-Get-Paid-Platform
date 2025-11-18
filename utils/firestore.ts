@@ -86,9 +86,9 @@ export async function updateTask(taskId: string, payload: Partial<Task>) {
 }
 
 // ----------------- SUBMISSIONS -----------------
-export async function createSubmission(sub: Omit<DailySubmission, "id">) {
-  const ref = await addDoc(submissionsCol, sub as any);
-  return { id: ref.id, ...sub } as DailySubmission;
+export async function createSubmission(data: Omit<DailySubmission, "id">) {
+  const ref = await addDoc(collection(db, "submissions"), data);
+  return { id: ref.id, ...data };
 }
 
 export async function listSubmissions() {

@@ -37,8 +37,15 @@ export interface Task {
 export interface DailySubmission {
   id: string;
   userId: string;
-  date: string; // yyyy-mm-dd
-  workedHours: number;
-  notes?: string;
+  date: string;
+
+  githubCommitUrl: string;   // <— ADD
+  videoUrl: string;          // <— ADD
+
+  description: string;
+  workType: string;
+  hoursWorked: number;
+
   createdAt: string;
+  adminReviewed: boolean;
 }
