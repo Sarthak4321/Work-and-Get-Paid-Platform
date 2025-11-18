@@ -9,18 +9,27 @@ export interface User {
   email: string;
   password: string;
   fullName: string;
+
   phone: string;
   skills: string[];
   experience: string;
   timezone: string;
+
   preferredWeeklyPayout: number;
+
   role: "worker" | "admin";
   accountStatus: "pending" | "active" | "suspended" | "terminated";
+
   knowledgeScore: number;
   demoTaskCompleted: boolean;
+
+  /** 🔥 ADD THIS FIELD */
+  demoTaskScore?: number;
+
   createdAt: string;
   balance: number;
 }
+
 
 export interface Task {
   id: string;
