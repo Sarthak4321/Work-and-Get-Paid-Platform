@@ -1,98 +1,126 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
-import Layout from '../components/Layout';
-import Card from '../components/Card';
-import Button from '../components/Button';
-import DailySubmissionForm from '../components/DailySubmission';
-import SubmissionHistory from '../components/SubmissionHistory';
-import { storage, User, Task, DailySubmission } from '../utils/storage';
-import { DollarSign, Briefcase, CheckCircle, Clock, Calendar } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
+
+import Layout from "../components/Layout";
+import Card from "../components/Card";
+import Button from "../components/Button";
+import DailySubmissionForm from "../components/DailySubmission";
+import SubmissionHistory from "../components/SubmissionHistory";
+
+import { storage } from "../utils/storage";
+import type { User, Task, DailySubmission } from "../utils/types";
+
+import {
+  DollarSign,
+  Briefcase,
+  CheckCircle,
+  Clock,
+  Calendar,
+} from "lucide-react";
 
 export default function Dashboard() {
   const router = useRouter();
+
   const [user, setUser] = useState<User | null>(null);
   const [myTasks, setMyTasks] = useState<Task[]>([]);
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'daily-work'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "daily-work">(
+    "overview"
+  );
   const [mySubmissions, setMySubmissions] = useState<DailySubmission[]>([]);
 
+  /* -------------------------------------------------------------
+   * AUTH CHECK + INITIAL LOAD
+   * ----------------------------------------------------------- */
   useEffect(() => {
-    const currentUser = storage.getCurrentUser();
-    if (!currentUser) {
-      router.push('/login');
-      return;
-    }
-    if (currentUser.role !== 'worker') {
-      router.push('/admin');
+    const current = storage.getCurrentUser();
+
+    if (!current) {
+      router.push("/login");
       return;
     }
 
-    setUser(currentUser);
-    loadData(currentUser);
-  }, [router]);
+    if (current.role !== "worker") {
+      router.push("/admin");
+      return;
+    }
 
-  const loadData = (currentUser: User) => {
-    const skills = currentUser.skills ?? []; // 🔥 fallback fix
+    setUser(current);
+    loadData(current);
+  }, []);
 
-    const tasks = storage.getTasks();
+  /* -------------------------------------------------------------
+   * LOAD USER TASKS + AVAILABLE TASKS + SUBMISSIONS
+   * ----------------------------------------------------------- */
+  const loadData = async (currentUser: User) => {
+    const skills = currentUser.skills ?? [];
 
-    setMyTasks(tasks.filter(t => t.assignedTo === currentUser.id));
+    // Fetch tasks from Firestore
+    const tasks = await storage.getTasks();
+
+    setMyTasks(tasks.filter((t) => t.assignedTo === currentUser.id));
 
     setAvailableTasks(
-      tasks.filter(t =>
-        t.status === "available" &&
-        t.skills.some(skill => skills.includes(skill))
+      tasks.filter(
+        (t) =>
+          t.status === "available" &&
+          t.skills?.some((skill) => skills.includes(skill))
       )
     );
 
-    const submissions = storage.getDailySubmissions();
+    // Fetch submissions from Firestore
+    const subs = await storage.getSubmissionsByUser(currentUser.id);
+
     setMySubmissions(
-      submissions
-        .filter(s => s.userId === currentUser.id)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      subs.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
     );
   };
 
-
   if (!user) return null;
 
+  /* -------------------------------------------------------------
+   * OVERVIEW NUMBERS
+   * ----------------------------------------------------------- */
   const stats = [
     {
-      label: 'Balance',
+      label: "Balance",
       value: `$${user.balance.toFixed(2)}`,
       icon: DollarSign,
-      color: 'bg-green-100 text-green-600',
+      color: "bg-green-100 text-green-600",
     },
     {
-      label: 'Active Tasks',
-      value: myTasks.filter(t => t.status === 'in-progress').length,
+      label: "Active Tasks",
+      value: myTasks.filter((t) => t.status === "in-progress").length,
       icon: Briefcase,
-      color: 'bg-blue-100 text-blue-600',
+      color: "bg-blue-100 text-blue-600",
     },
     {
-      label: 'Completed',
-      value: myTasks.filter(t => t.status === 'completed').length,
+      label: "Completed",
+      value: myTasks.filter((t) => t.status === "completed").length,
       icon: CheckCircle,
-      color: 'bg-purple-100 text-purple-600',
+      color: "bg-purple-100 text-purple-600",
     },
     {
-      label: 'Available Tasks',
+      label: "Available Tasks",
       value: availableTasks.length,
       icon: Clock,
-      color: 'bg-orange-100 text-orange-600',
+      color: "bg-orange-100 text-orange-600",
     },
   ];
 
-  const handleAcceptTask = (taskId: string) => {
-    const tasks = storage.getTasks();
-    const updatedTasks = tasks.map(t =>
-      t.id === taskId
-        ? { ...t, status: 'in-progress' as const, assignedTo: user.id }
-        : t
-    );
-    storage.setTasks(updatedTasks);
-    router.push('/tasks');
+  /* -------------------------------------------------------------
+   * ACCEPT TASK
+   * ----------------------------------------------------------- */
+  const handleAcceptTask = async (taskId: string) => {
+    await storage.updateTask(taskId, {
+      status: "in-progress",
+      assignedTo: user!.id,
+    });
+
+    router.push("/tasks");
   };
 
   return (
