@@ -139,6 +139,7 @@
 
 // utils/storage.ts
 
+// utils/storage.ts
 import {
   createUser as fsCreateUser,
   getUserByEmail as fsGetUserByEmail,
@@ -158,34 +159,33 @@ import {
   createPayment as fsCreatePayment,
   listPayments as fsListPayments,
   listPaymentsByUser as fsListPaymentsByUser,
-
-  
 } from "./firestore";
 
-import type { export export export export User, export export export export export Task, DailySubmission, export export export export export export Payment } from "./types";
+import type { User, Task, DailySubmission, Payment } from "./types";
 
 /**
  * Firestore-backed storage module
- * Replaces old localStorage implementation. All Firestore operations are async.
+ * Replaces previous localStorage wrapper. Most calls are async.
  */
 export const storage = {
-  /* ---------------------------------------------------
-   * USERS
-   * --------------------------------------------------- */
-  // PAYMENTS
-  async createPayment(payment: Omit<Payment, "id">) {
+  /* -------------------------
+   * PAYMENTS
+   * ------------------------- */
+  async createPayment(payment: Omit<Payment, "id">): Promise<Payment> {
     return await fsCreatePayment(payment);
   },
 
-  async getPaymentsByUser(userId: string) {
-    return await fsListPaymentsByUser(userId);
-  },
-
-  async getPayments() {
+  async getPayments(): Promise<Payment[]> {
     return await fsListPayments();
   },
 
+  async getPaymentsByUser(userId: string): Promise<Payment[]> {
+    return await fsListPaymentsByUser(userId);
+  },
 
+  /* -------------------------
+   * USERS
+   * ------------------------- */
   async getUsers(): Promise<User[]> {
     return await fsListUsers();
   },
@@ -202,21 +202,19 @@ export const storage = {
     return await fsCreateUser(user);
   },
 
-  async updateUser(id: string, payload: Partial<User>) {
+  async updateUser(id: string, payload: Partial<User>): Promise<User | null> {
     return await fsSetUser(id, payload);
   },
 
-  /* ---------------------------------------------------
-   * CURRENT USER (browser session only)
-   * --------------------------------------------------- */
-
+  /* -------------------------
+   * CURRENT USER (local session)
+   * ------------------------- */
   setCurrentUser(user: User | null) {
-    if (typeof window !== "undefined") {
-      if (user) {
-        localStorage.setItem("ceh_current_user", JSON.stringify(user));
-      } else {
-        localStorage.removeItem("ceh_current_user");
-      }
+    if (typeof window === "undefined") return;
+    if (user) {
+      localStorage.setItem("ceh_current_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("ceh_current_user");
     }
   },
 
@@ -232,15 +230,13 @@ export const storage = {
   },
 
   removeCurrentUser() {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("ceh_current_user");
-    }
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("ceh_current_user");
   },
 
-  /* ---------------------------------------------------
+  /* -------------------------
    * TASKS
-   * --------------------------------------------------- */
-
+   * ------------------------- */
   async getTasks(): Promise<Task[]> {
     return await fsListTasks();
   },
@@ -249,17 +245,14 @@ export const storage = {
     return await fsCreateTask(task);
   },
 
-  async updateTask(id: string, payload: Partial<Task>) {
+  async updateTask(id: string, payload: Partial<Task>): Promise<Task | null> {
     return await fsUpdateTask(id, payload);
   },
 
-  /* ---------------------------------------------------
+  /* -------------------------
    * DAILY SUBMISSIONS
-   * --------------------------------------------------- */
-
-  async createSubmission(
-    sub: Omit<DailySubmission, "id">
-  ): Promise<DailySubmission> {
+   * ------------------------- */
+  async createSubmission(sub: Omit<DailySubmission, "id">): Promise<DailySubmission> {
     return await fsCreateSubmission(sub);
   },
 
@@ -271,8 +264,9 @@ export const storage = {
     return await fsListSubmissions();
   },
 
-  async updateSubmission(id: string, payload: Partial<DailySubmission>) {
+  async updateSubmission(id: string, payload: Partial<DailySubmission>): Promise<void> {
     return await fsUpdateSubmission(id, payload);
   },
-
 };
+
+export default storage;
