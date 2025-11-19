@@ -21,18 +21,26 @@ export interface User {
 
   preferredWeeklyPayout: number;
 
-  role: UserRole;
-  accountStatus: AccountStatus;
+  role: "worker" | "admin";
+  accountStatus: "pending" | "active" | "suspended" | "terminated";
 
   knowledgeScore: number;
   demoTaskCompleted: boolean;
   demoTaskScore?: number;
 
-  payoutAccount?: PayoutAccount;
+  payoutAccount?: {
+    accountType: string;
+    accountNumber: string;
+    verified: boolean;
+  };
+
+  /** ✅ REQUIRED for login.tsx */
+  emailVerified: boolean;
 
   createdAt: string;
   balance: number;
 }
+
 
 export interface Task {
   id: string;
