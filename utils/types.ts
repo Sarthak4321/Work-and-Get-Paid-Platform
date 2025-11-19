@@ -69,7 +69,7 @@ export interface Payment {
   id: string;
   userId: string;
   amount: number;
-  type: "task-payment" | "manual" | "bonus";
+    type: "task-payment" | "manual" | "bonus" | "withdrawal";
   status: "pending" | "completed" | "failed";
   taskId?: string;
   createdAt: string;
