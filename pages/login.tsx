@@ -626,81 +626,76 @@ export default function Login() {
             Cehpoint
           </span>
         </Link>
+        <div className="glass-card rounded-3xl premium-shadow p-10">
+          {error && (
+            <div className="bg-red-50 border-2 border-red-200 text-red-700 px-5 py-4 rounded-xl font-medium mb-4">
+              {error}
+            </div>
+          )}
 
-        <h1 className="text-4xl font-black mt-6 text-gray-900">Welcome Back</h1>
-        <p className="text-gray-600 mt-3 text-lg">Login to continue</p>
-      </div>
+          {/* Google */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition mb-4"
+          >
+            <img src="/google.png" className="w-5 h-5" />
+            <span className="font-medium">Sign in with Google</span>
+          </button>
 
-      <div className="glass-card rounded-3xl premium-shadow p-10">
-        {error && (
-          <div className="bg-red-50 border-2 border-red-200 text-red-700 px-5 py-4 rounded-xl font-medium mb-4">
-            {error}
+          {/* GitHub */}
+          <button
+            type="button"
+            onClick={handleGithubLogin}
+            className="w-full flex items-center justify-center gap-2 bg-black text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition mb-4"
+          >
+            <img src="/github.png" className="w-5 h-5 invert" />
+            <span className="font-medium">Sign in with GitHub</span>
+          </button>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-300" />
+              <span className="text-sm text-gray-500">or</span>
+              <div className="flex-1 h-px bg-gray-300" />
+            </div>
+
+            <input
+              type="email"
+              placeholder="Email"
+              className="premium-input w-full py-4 px-5 rounded-xl"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              className="premium-input w-full py-4 px-5 rounded-xl"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <Button type="submit" fullWidth>
+              Login to Continue
+            </Button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-base text-gray-600">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/signup"
+                className="text-indigo-600 font-bold hover:text-indigo-700 hover:underline"
+              >
+                Sign Up Free
+              </Link>
+            </p>
           </div>
-        )}
-
-        {/* Google */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 px-5 py-3 rounded-xl shadow-sm hover:bg-gray-50 transition mb-4"
-        >
-          <img src="/google.png" className="w-5 h-5" />
-          <span className="font-medium">Sign in with Google</span>
-        </button>
-
-        {/* GitHub */}
-        <button
-          type="button"
-          onClick={handleGithubLogin}
-          className="w-full flex items-center justify-center gap-2 bg-black text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition mb-4"
-        >
-          <img src="/github.png" className="w-5 h-5 invert" />
-          <span className="font-medium">Sign in with GitHub</span>
-        </button>
-
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-gray-300" />
-            <span className="text-sm text-gray-500">or</span>
-            <div className="flex-1 h-px bg-gray-300" />
-          </div>
-
-          <input
-            type="email"
-            placeholder="Email"
-            className="premium-input w-full py-4 px-5 rounded-xl"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="premium-input w-full py-4 px-5 rounded-xl"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <Button type="submit" fullWidth>
-            Login to Continue
-          </Button>
-        </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-base text-gray-600">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-indigo-600 font-bold hover:text-indigo-700 hover:underline"
-            >
-              Sign Up Free
-            </Link>
-          </p>
         </div>
       </div>
     </div>
-    </div >
   );
 }
