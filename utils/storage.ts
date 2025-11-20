@@ -160,7 +160,8 @@ import {
   listPayments as fsListPayments,
   listPaymentsByUser as fsListPaymentsByUser,
 
- deleteTask as fsDeleteTask
+ deleteTask as fsDeleteTask,
+ updatePayment as fsUpdatePayment
 
 } from "./firestore";
 
@@ -185,6 +186,10 @@ export const storage = {
   async getPaymentsByUser(userId: string): Promise<Payment[]> {
     return await fsListPaymentsByUser(userId);
   },
+  async updatePayment(id: string, payload: Partial<Payment>) {
+  return await fsUpdatePayment(id, payload);
+},
+
 
   /* -------------------------
    * USERS

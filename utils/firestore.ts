@@ -123,6 +123,13 @@ export async function listPayments() {
   return snap.docs.map(d => ({ id: d.id, ...(d.data() as Payment) })) as Payment[];
 }
 
+export async function updatePayment(id: string, payload: Partial<Payment>) {
+  const ref = doc(db, "payments", id);
+  await updateDoc(ref, payload);
+  return id;
+}
+
+
 // UPDATE a submission
 export async function updateSubmission(
   id: string,
