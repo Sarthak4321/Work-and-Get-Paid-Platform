@@ -553,7 +553,6 @@ export default function Payments() {
           </div>
         )}
       </Card>
-    </div>
     </Layout >
   );
 }
